@@ -1,0 +1,7 @@
+node_modules/
+.env
+uploads/comprobantes/*
+!uploads/comprobantes/.gitkeep
+uploads/plantillas/*
+!uploads/plantillas/.gitkeep
+npm-debug.log*
