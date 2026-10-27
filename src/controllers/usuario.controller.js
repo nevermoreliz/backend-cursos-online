@@ -3,6 +3,7 @@ const UsuarioAdmin = require("../models/usuario.model");
 const { handleResponseJson, handleResponseJsonMsg } = require("../utils/handle-response-json");
 const { handleHttpError } = require("../utils/handle-error");
 const { encrypt } = require("../utils/handle-password");
+const { paginateModel } = require("../utils/util-paginate");
 
 const getUsuario = async (req, res) => {
     try {
@@ -37,6 +38,30 @@ const getUsuario = async (req, res) => {
     } catch (error) {
         console.error(`❌ [UsuarioAdminController - getUsuario] Error: ${error.message}`, error);
         handleHttpError(res, error, 'ERROR_OBTENER_USUARIO');
+    }
+};
+
+const getUsuarios = async (req, res) => {
+    try {
+
+        /**
+         * obtener usuarios con paginacion -> helper paginateModel
+         */
+        const { data: usuarios, paginacion } = await paginateModel(
+            UsuarioAdmin, // modelo -> UsuarioAdmin
+            req.query, // query params -> page, limit, search, sortBy, sortOrder
+            ['nombre_completo', 'email'], // searchFields -> campos para buscar
+            { attributes: { exclude: ['password_hash'] } } // options -> atributos a excluir
+        );
+
+        /**
+         * enviar respuesta
+         */
+        handleResponseJson(res, 200, usuarios, 'Usuarios encontrados exitosamente', paginacion);
+
+    } catch (error) {
+        console.error(`❌ [UsuarioAdminController - getUsuarios] Error: ${error.message}`, error);
+        handleHttpError(res, error, 'ERROR_OBTENER_USUARIOS');
     }
 };
 
@@ -163,4 +188,4 @@ const deleteUsuarioAdmin = async (req, res) => {
     }
 };
 
-module.exports = { getUsuario, createUsuarioAdmin, updateUsuarioAdmin, deleteUsuarioAdmin }
+module.exports = { getUsuario, getUsuarios, createUsuarioAdmin, updateUsuarioAdmin, deleteUsuarioAdmin }
