@@ -44,14 +44,29 @@ const getUsuario = async (req, res) => {
 const getUsuarios = async (req, res) => {
     try {
 
+        const filtros = {};
+
+        // WHERE rol = 'ADMIN'
+        if (req.query.rol) {
+            filtros.rol = req.query.rol;
+        }
+
+        // WHERE activo = true/false
+        if (req.query.activo) {
+            filtros.activo = req.query.activo === 'true';
+        }
+
         /**
          * obtener usuarios con paginacion -> helper paginateModel
          */
         const { data: usuarios, paginacion } = await paginateModel(
             UsuarioAdmin, // modelo -> UsuarioAdmin
             req.query, // query params -> page, limit, search, sortBy, sortOrder
-            ['nombre_completo', 'email'], // searchFields -> campos para buscar
-            { attributes: { exclude: ['password_hash'] } } // options -> atributos a excluir
+            ['nombre_completo', 'email', 'rol'], // searchFields -> campos para buscar
+            {
+                where: filtros,
+                attributes: { exclude: ['password_hash'] }
+            } // options -> atributos a excluir
         );
 
         /**
